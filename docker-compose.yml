@@ -1,0 +1,51 @@
+version: "3:7"
+services:
+  db:
+    image: mysql
+    container_name: mysql-container
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ./api/db/data:/var/lib/mysql
+    restart: always
+  api:
+      build: "./api"
+      container_name: node-container
+      restart: always
+      volumes:
+        - ./api:/home/node/app
+      ports:
+        - "9001:9001"
+      depends_on:
+        - db
+  web:
+      image: "php:7.2-apache"
+      container_name: php-container
+      restart: always
+      volumes:
+        - ./website:/var/www/html
+      ports:
+        - "8888:80"
+      depends_on:
+        - api
+  # web:
+  #   image: nginx:1.13
+  #   ports:
+  #     - "80:80"
+  #   volumes:
+  #     - ./html:/usr/share/nginx/html
+  #   networks:
+  #     - frontend
+  # redis:
+  #   image: redis:3.2
+  #   volumes:
+  #     - ./data:/data
+  #   networks:
+  #     - backend
+  # db:
+  #   image: postgres:9.4
+  #   volumes:
+  #     - ./data:/var/lib/postgresql/data
+  #   networks:
+  #     - backend
